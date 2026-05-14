@@ -1,9 +1,7 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-const storedUser = localStorage.getItem('user');
-
-export const USER_ID = storedUser ? JSON.parse(storedUser).id : null;
+export const USER_ID = 4198;
 
 export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
