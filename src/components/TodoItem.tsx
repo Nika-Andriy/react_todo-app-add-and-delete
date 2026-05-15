@@ -1,99 +1,56 @@
 import React from 'react';
-import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import classNames from 'classnames';
 
 type Props = {
   todo: Todo;
-  isEditing: boolean;
-  editTitle: string;
-  isLoading: boolean;
-  onToggle: (todo: Todo) => void;
-  onDelete: (todoId: number) => void;
-  onStartEdit: (todo: Todo) => void;
-  onEditTitleChange: React.ChangeEventHandler<HTMLInputElement>;
-  onSaveEdit: (event: React.FormEvent, todo: Todo) => void;
-  onCancelEdit: () => void;
+  isLoading?: boolean;
+  onDelete?: (todoId: number) => void;
+  onChecked?: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isEditing,
-  editTitle,
-  isLoading,
-  onToggle,
   onDelete,
-  onStartEdit,
-  onEditTitleChange,
-  onSaveEdit,
-  onCancelEdit,
+  isLoading,
+  onChecked,
 }) => {
-  const todoStatusId = `todo-status-${todo.id}`;
-
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', {
-        completed: todo.completed,
-      })}
+      className={classNames('todo', { completed: todo.completed })}
     >
-      <label htmlFor={todoStatusId} className="todo__status-label">
+      <label className="todo__status-label" htmlFor={`todo-${todo.id}`}>
         <input
-          id={todoStatusId}
+          id={`todo-${todo.id}`}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          aria-label={`Mark "${todo.title}" as ${todo.completed ? 'active' : 'completed'}`}
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          aria-label="Toggle todo status"
+          onChange={() => onChecked?.(todo)}
         />
       </label>
 
-      {!isEditing ? (
-        <>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={() => onStartEdit(todo)}
-          >
-            {todo.title}
-          </span>
+      <span data-cy="TodoTitle" className="todo__title">
+        {todo.title}
+      </span>
 
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            aria-label={`Delete "${todo.title}"`}
-            onClick={() => onDelete(todo.id)}
-          >
-            x
-          </button>
-        </>
-      ) : (
-        <form onSubmit={event => onSaveEdit(event, todo)}>
-          <input
-            autoFocus
-            data-cy="TodoTitleField"
-            type="text"
-            aria-label="Edit todo title"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={editTitle}
-            onChange={onEditTitleChange}
-            onBlur={event => onSaveEdit(event, todo)}
-            onKeyUp={event => {
-              if (event.key === 'Enter') {
-                onCancelEdit();
-              }
-            }}
-          />
-        </form>
-      )}
+      <button
+        type="button"
+        className="todo__remove"
+        data-cy="TodoDelete"
+        onClick={() => onDelete?.(todo.id)}
+      >
+        ×
+      </button>
+
+      {/* overlay will cover the todo while it is being deleted or updated */}
 
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active': isLoading,
-          hidden: !isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
@@ -102,3 +59,15 @@ export const TodoItem: React.FC<Props> = ({
     </div>
   );
 };
+
+{
+  /* <form>
+  <input
+    data-cy="TodoTitleField"
+    type="text"
+    className="todo__title-field"
+    placeholder="Empty todo will be deleted"
+    value="Todo is being edited now"
+  />
+</form>; */
+}
